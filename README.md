@@ -1,0 +1,1 @@
+A web application that allows real-time 2D playback of CS:GO demos. Work in progress
