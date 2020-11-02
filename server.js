@@ -52,7 +52,8 @@ io.on("connection", socket=>{
         console.log(rooms);
 
         socket.on("playbackUpdate", status=>{
-            io.to(roomCode).emit("update", status);
+            socket.to(roomCode).emit("update", status);
+            //console.log(status);
         })
     })
 })
@@ -91,7 +92,7 @@ app.post("/upload", (req, res, next)=>{
             const demoFile = new demofile.DemoFile();
             demoFile.parse(buffer);
             
-            demoFile.gameEvents.on("round_start", e=>{
+            demoFile.gameEvents.on("round_freeze_end", e=>{
                 let playersT = demoFile.teams[T].members;
                 let playersCT = demoFile.teams[CT].members;
                 
@@ -189,14 +190,14 @@ app.post("/upload", (req, res, next)=>{
                     
                     console.log("Finished processing demo");
                     
-                    /*
+                    
                     //for testing
                     fs.writeFile("123.txt", JSON.stringify(game), function(err) {
                         if (err) 
                             console.log(err);
                         console.log("Data exported.");
                     });
-                    */
+                    
                 }
             })
         });

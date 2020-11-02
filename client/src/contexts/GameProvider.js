@@ -1,4 +1,5 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState} from 'react'
+//import game from '../pages/123.json';
 
 
 export const GameContext = React.createContext();
@@ -12,3 +13,5 @@ export function GameProvider(props){
         </GameContext.Provider>
     );
 }
+
+//{game, setGame}

@@ -1,10 +1,9 @@
 import React, {useEffect, useRef, useState, useContext} from 'react';
-import {Jumbotron, Container, Pagination} from 'react-bootstrap';
+import {Jumbotron, Container, Pagination, Button, Alert} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './WatchPage.css';
 import {SocketContext} from "../contexts/SocketProvider";
 import {GameContext} from "../contexts/GameProvider";
-//import json from './123.json';
 
 
 function PlaybackArea(props){
@@ -19,19 +18,24 @@ function PlaybackArea(props){
     );
 }
 
-function ControlBar(props){
-    const [active, setActive] = useState(1);
+function ControlBar (props){
+    const [active, setActive] = useState(props.currentRound);
     let items = [];
 
-    function handleClick(i){
+    useEffect(()=>{
+        setActive(props.currentRound);
+    },[props.currentRound]);
+
+    function changeRound(i){
         setActive(i);
-        props.onClick(i);
+        props.changeRound(i);
     }
+
 
     // Displaying pagination numbers
     for (let number = 1; number <= props.maxRounds; number++) {
         items.push(
-          <Pagination.Item key={number} active={number === active} onClick={()=>handleClick(number)}>
+          <Pagination.Item key={number} active={number === active} onClick={()=>changeRound(number)}>
             {number}
           </Pagination.Item>,
         );
@@ -40,9 +44,10 @@ function ControlBar(props){
     return(
         <div>
           <Pagination>{items}</Pagination>
+          <Button variant="primary" onClick = {props.pauseUnpause}>{props.paused? "Play": "Pause"}</Button>{' '}
         </div>
     );
-}
+};
 
 
 function Game(props){
@@ -51,20 +56,24 @@ function Game(props){
     const [dotPositions, setDotPositions] = useState([]);
     const [playbackState, setPlaybackState] = useState({
         currentRound: 1,
-        t: 0, 
+        t: 0,
+        paused: true
     });
-    
-    useInterval(()=>{
-        // For position calibration
-        const x0 = 535, y0 = -527;   
-        const xg0 = -520, yg0 = -984;
-        const k = 0.2;
 
-        if(game != null && playbackState.t < game.rounds[playbackState.currentRound].player_positions.length){
-            let players = game.rounds[playbackState.currentRound].player_positions[playbackState.t].players;
+    //console.log("init");
 
+    function updatePlayerDots(round, t){
+        if(game.rounds[round] != null){
+            
+            // For position calibration
+            const x0 = 535, y0 = -527;   
+            const xg0 = -520, yg0 = -984;
+            const k = 0.2;
+
+            let players = game.rounds[round].player_positions[t].players;
             let newDotPositions = [];
             
+            console.log(round);
             for(const i in players){
                 if(players[i].position != null){     // checks if player is still alive
                     let xg = players[i].position.x;
@@ -77,27 +86,63 @@ function Game(props){
             }
 
             setDotPositions(newDotPositions);
-            setPlaybackState({currentRound: playbackState.currentRound, t: playbackState.t+1});
         }
-        console.log("tick");   
+    }
+    
+    
+    useInterval(()=>{
+        if(!playbackState.paused && game != null && game.rounds[playbackState.currentRound] != null 
+            && playbackState.t < game.rounds[playbackState.currentRound].player_positions.length){
+                
+            updatePlayerDots(playbackState.currentRound, playbackState.t);
+            setPlaybackState({currentRound: playbackState.currentRound, t: playbackState.t+1, paused: playbackState.paused});
+        }
+        //console.log("tick");   
+    },7);
+     
 
+    useEffect(()=>{
         socket.on("update", state =>{
-        setPlaybackState(state);
+            setPlaybackState(state);
+
+            if(game != null)
+                updatePlayerDots(state.currentRound, state.t);
         });
-    },5);
+    },[]);
 
-    function handleClick(i){
+    function changeRound(i){
         setDotPositions([]);
-        setPlaybackState({currentRound: i, t:0});
 
-        //socket.emit("playbackUpdate", playbackState);
+        let newState = {currentRound: i, t:0, paused: true};
+        setPlaybackState(newState);
+
+        // Set initial player locations
+        if(game != null)
+            updatePlayerDots(i, 0);
+    
+        socket.emit("playbackUpdate", newState);
+    }
+
+    function pauseUnpause(){
+        let newState = {currentRound: playbackState.currentRound, t:playbackState.t, paused: playbackState.paused ? false: true};
+        setPlaybackState(newState);
+
+        socket.emit("playbackUpdate", newState);
     }
 
     return(
-        <Jumbotron>
-            <PlaybackArea dotPositions= {dotPositions}/>
-            <ControlBar maxRounds = {game == null ? 30 : Object.keys(game.rounds).length} onClick = {handleClick}/>
-        </Jumbotron>
+        <Container>
+            <Jumbotron>
+                <PlaybackArea dotPositions= {dotPositions}/>
+                <ControlBar 
+                    maxRounds = {game == null ? 30 : Object.keys(game.rounds).length} 
+                    changeRound = {changeRound} 
+                    pauseUnpause = {pauseUnpause}
+                    currentRound = {playbackState.currentRound}
+                    paused = {playbackState.paused}
+                    />
+            </Jumbotron>
+        </Container>
     );
 
 }

@@ -1,5 +1,4 @@
-import React, {useState, useContext} from 'react';
-import io from "socket.io-client";
+import React, {useState, useContext, useEffect} from 'react';
 import { Button, Jumbotron, Container, Form, Col} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './HomePage.css';
@@ -17,6 +16,7 @@ function CreateForm(props){
     const [fileName, setFileName] = useState("Choose Demo to Upload...");
     const [fileStatus, setFileStatus] = useState(0);
     const [fileStatusName, setFileStatusName] = useState("");
+    const [submitBtnStatus, setSubmitBtnStatus] = useState(false);
 
 
     function handleFile(e){
@@ -45,34 +45,39 @@ function CreateForm(props){
             setFileStatus(1);
             setFileName(file.name);
             setFile(file);
+            setSubmitBtnStatus(true);
         }
     }
 
     function handleSubmit(e){
         e.preventDefault();
         
-        const formData = new FormData();
-        formData.append("file", file);
+        if(fileStatus == 1){
+            setSubmitBtnStatus(false);
 
-        // Uploads selected demo file
-        axios.post("/upload", formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
+            const formData = new FormData();
+            formData.append("file", file);
+
+            // Uploads selected demo file
+            axios.post("/upload", formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
         
-        // If server is successful in processing demo, it sends back a room code/permission used to create a websocket room
-        }).then(res=> {
-            
-            console.log(res);
-            socket.emit("joinRoom", res.data);
-            socket.on("joinResponse", data=>{
-                if(data.status){
-                    setGame(data.game);
-                    history.push("/watch");
-                }else
-                    alert(data.statusMsg)
+            // If server is successful in processing demo, it sends back a room code/permission used to create a websocket room
+            }).then(res=> {
+                
+                console.log(res);
+                socket.emit("joinRoom", res.data);
+                socket.on("joinResponse", data=>{
+                    if(data.status){
+                        setGame(data.game);
+                        history.push("/watch");
+                    }else
+                        alert(data.statusMsg)
+                });
             });
-        });
+        }
     }
 
 
@@ -91,7 +96,7 @@ function CreateForm(props){
                     
                 </Col>
                 <Col>   
-                    <Button variant="create" type = "submit">Create Session</Button>
+                    <Button variant="create" type = "submit" disabled = {!submitBtnStatus}>Create Session</Button>
                 </Col>
             </Form.Row>
         </Form>
@@ -115,6 +120,9 @@ function JoinForm(props){
         //
 
         socket.emit("joinRoom", textValue);
+    }
+
+    useEffect(()=>{
         socket.on("joinResponse", (data)=>{
             if(data.status == false)
                 alert(data.statusMsg);
@@ -123,7 +131,7 @@ function JoinForm(props){
                 history.push("/watch");
             }
         })
-    }
+    },[]);
 
     return(
         <Form onSubmit = {handleSubmit}>
