@@ -9,6 +9,7 @@ import {GameContext} from "../contexts/GameProvider";
 
 
 function CreateForm(props){
+    const setJoinCode = useContext(GameContext).setJoinCode;
     const setGame = useContext(GameContext).setGame;
     const socket = useContext(SocketContext);
     const history = useHistory();
@@ -69,9 +70,11 @@ function CreateForm(props){
                 
                 console.log(res);
                 socket.emit("joinRoom", res.data);
+
                 socket.on("joinResponse", data=>{
                     if(data.status){
                         setGame(data.game);
+                        setJoinCode(data.joinCode);
                         history.push("/watch");
                     }else
                         alert(data.statusMsg)
@@ -104,6 +107,7 @@ function CreateForm(props){
 }
 
 function JoinForm(props){
+    const setJoinCode = useContext(GameContext).setJoinCode;
     const setGame = useContext(GameContext).setGame;
     const socket = useContext(SocketContext);
     const history = useHistory();
@@ -128,6 +132,7 @@ function JoinForm(props){
                 alert(data.statusMsg);
             else{
                 setGame(data.game);
+                setJoinCode(data.joinCode);
                 history.push("/watch");
             }
         })

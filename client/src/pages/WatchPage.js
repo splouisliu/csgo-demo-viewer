@@ -132,6 +132,9 @@ function Game(props){
 
     return(
         <Container>
+            <Alert key="123" variant="primary">
+                Join Code: {useContext(GameContext).joinCode}
+            </Alert>
             <Jumbotron>
                 <PlaybackArea dotPositions= {dotPositions}/>
                 <ControlBar 
