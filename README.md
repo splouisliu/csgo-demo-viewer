@@ -10,11 +10,11 @@ Still a work in progress, currently working on:
   - Flaring up the UI
   
 ## 1. Demo Upload
- ![til](/Upload.gif)
+ ![til](/gifs/Upload.gif)
 
 
 ## 2. Watch in Real-Time!
-![til](/Controls.gif)
+![til](/gifs/Watch.gif)
 
 
 Big credit to: [Saul's NodeJS library for parsing CS:GO demo files](https://github.com/saul/demofile)
