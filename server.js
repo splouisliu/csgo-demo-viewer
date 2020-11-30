@@ -174,6 +174,7 @@ function processDemo(demo){
 
         // Resolves promise once demo has finished parsing
         demoFile.on("end", ()=> {
+            demoFile.cancel();
             if(Object.keys(game.rounds).length < 1)
                 reject("Error parsing demo");
             else

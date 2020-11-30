@@ -1,5 +1,5 @@
 import React, {useState, useContext, useEffect} from 'react';
-import { Button, Jumbotron, Container, Form, Col} from 'react-bootstrap';
+import { Button, Jumbotron, Container, Form, Row, Col} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './HomePage.css';
 import {useHistory} from 'react-router-dom';
@@ -153,17 +153,32 @@ function JoinForm(props){
 }
 
 function HomePage(props){
-
     return(
-        <Container>
-            <Jumbotron id = "createSessionSection" >
-                <CreateForm/>
-            </Jumbotron>
-            <Jumbotron id = "joinSessionSection" >
-                <JoinForm/>
-            </Jumbotron>    
+        <Container fluid className = "page">
+            <Container>
+                <Row className = "main-modal">
+                    <Col className = "left">
+                        Create Session
+                    </Col>
+                    <Col className = "right">
+                        Join Session
+                    </Col>
+                </Row>
+            </Container>
         </Container>
     )
 }
 
 export default HomePage;
+
+/*
+
+<Jumbotron id = "createSessionSection" >
+                <CreateForm/>
+            </Jumbotron>
+            <Jumbotron id = "joinSessionSection" >
+                <JoinForm/>
+            </Jumbotron>
+
+
+            */

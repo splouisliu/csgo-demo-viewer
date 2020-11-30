@@ -7,3 +7,49 @@
     background-color: #007bff;
     color: white;
 }
+
+
+.main-modal{
+    height : 300px;
+    text-align: center;
+    
+}
+
+.main-modal>*{
+    text-align: center;
+    margin-top: 130px;
+    height: 700px;
+    padding-top: 300px;
+    font-size: 40px;
+    font-family: Calibri;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.left{
+    background-color: #303e4d;
+    color: white;
+}
+
+.left:hover{
+    background-color:  #4c5f73;
+}
+
+.right{
+    background-color: #B0C4DE;
+    
+}
+
+.right:hover{
+    background-color:  #cddef3;
+}
+
+
+
+.page{
+    background-image: url("/bg.jpg");
+    height: 100%;
+}
+
+html, body, #root, .App {
+    height: 100%;
+  }
