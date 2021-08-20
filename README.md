@@ -1,13 +1,7 @@
 # CSGO-DEMO-VIEWER
 
 
-A web application with a focus on allowing players to watch their CS:GO match recordings collaboratively — great for amateur teams to review their strats and setups. Built with Express/React with Socket.io.
-
-Still a work in progress, currently working on:
-  - Adding more features (i.e. adjustable viewing speed, player info, drawing over game, room management)
-  - File authentication
-  - Cover edge cases when parsing demo files
-  - Flaring up the UI
+A web application with a focus on allowing players to watch their CS:GO match recordings collaboratively — great for amateur teams to review their strats and setups. Built with NodeJS/React/WebSockets.
   
 ## 1. Demo Upload
  ![til](/gifs/Upload.gif)
