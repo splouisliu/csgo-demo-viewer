@@ -1,7 +1,8 @@
 import React from 'react';
 import {BrowserRouter as Router, Route} from "react-router-dom";
-import './App.css';
 import HomePage from "./pages/HomePage";
+import CreateRoomPage from "./pages/CreateRoomPage";
+import JoinRoomPage from "./pages/JoinRoomPage";
 import WatchPage from "./pages/WatchPage";
 import {SocketProvider} from "./contexts/SocketProvider";
 import {GameProvider} from "./contexts/GameProvider";
@@ -14,6 +15,8 @@ function App() {
 				<Router>
 					<switch>
 						<Route exact path="/" component= {HomePage}/>
+						<Route path="/create" component= {CreateRoomPage}/>
+						<Route path="/join" component= {JoinRoomPage}/>
 						<Route path="/watch" component= {WatchPage}/>
 					</switch>
 				</Router>

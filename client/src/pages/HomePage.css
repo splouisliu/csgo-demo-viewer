@@ -10,16 +10,17 @@
 
 
 .main-modal{
-    height : 300px;
+    height: 300px;
+    width: 900px;
+    margin: auto;
     text-align: center;
-    
 }
 
-.main-modal>*{
+.main-modal .left, .right{
     text-align: center;
-    margin-top: 130px;
-    height: 700px;
-    padding-top: 300px;
+    margin-top: 180px;
+    height: 560px;
+    padding-top: 240px;
     font-size: 40px;
     font-family: Calibri;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
@@ -44,12 +45,6 @@
 }
 
 
-
-.page{
-    background-image: url("/bg.jpg");
-    height: 100%;
-}
-
 html, body, #root, .App {
     height: 100%;
-  }
+}
