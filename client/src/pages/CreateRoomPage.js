@@ -8,6 +8,7 @@ import {SocketContext} from "../contexts/SocketProvider";
 import {GameContext} from "../contexts/GameProvider";
 
 const wsURL = "wss://5recwfvlb2.execute-api.us-east-2.amazonaws.com/production";
+const presignedURL = "https://9vrof028v0.execute-api.us-east-2.amazonaws.com/default/getPresignedURL";
 
 function CreateRoomPage(props){
     const setJoinCode = useContext(GameContext).setJoinCode;
@@ -56,58 +57,47 @@ function CreateRoomPage(props){
         
         e.preventDefault();
         setSubmitBtnStatus(false);
+        
+        let roomId;
 
+        // Upload demo
         try{
             // Obtain a presigned URL
-            const presignedURL = "https://9vrof028v0.execute-api.us-east-2.amazonaws.com/default/getPresignedURL";
             const res = await axios.get(presignedURL, {});
             const uploadURL = res.data.uploadURL;
-            const roomId = res.data.roomId;
+            roomId = res.data.roomId;
 
-            // Upload demo file to S3
+            // Upload demo to S3
             const options = {
                 headers: {
                     'Content-Type': 'application/octet-stream'
                 }
             }
             await axios.put(uploadURL, file, options);
-
-            alert("Yay!");
-
-            // Make Websocket connection
-            const ws = new WebSocket(wsURL);
-
-            ws.onopen = function(event){
-                const payload = {
-                    action: "joinRoom",
-                    data: {
-                        roomId: roomId
-                    }
-                }
-                
-                ws.send(JSON.stringify(payload));
-            }
-
-
         }catch(error){
             alert("Unable to Upload Demo");
             return;
         }
 
-        
+        // Make Websocket connection
+        const ws = new WebSocket(wsURL);
 
-        // console.log(res);
-        // socket.emit("joinRoom", res.data);
+        ws.onopen = function(event){
+            const payload = {
+                action: "joinRoom",
+                data: {
+                    roomId: roomId
+                }
+            }
+            
+            ws.send(JSON.stringify(payload));
 
-        // socket.on("joinResponse", data=>{
-        //     if(data.status){
-        //         setGame(data.game);
-        //         setJoinCode(data.joinCode);
-        //         history.push("/watch");
-        //     }else
-        //         alert(data.statusMsg)
-        // });
+            alert("Connected");
+        }
 
+        ws.onmessage = function(event){
+            console.log(event);
+        }
     }
 
     return(
