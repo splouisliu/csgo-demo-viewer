@@ -1,21 +1,8 @@
 const AWS = require('aws-sdk');
 
 AWS.config.update({ region: process.env.AWS_REGION });
-const URL = "https://5recwfvlb2.execute-api.us-east-2.amazonaws.com/production";
-const apiGateway = new AWS.ApiGatewayManagementApi({endpoint: URL});
+const apiGateway = new AWS.ApiGatewayManagementApi({endpoint: process.env.WS_URL});
 const dynamoClient = new AWS.DynamoDB.DocumentClient();
-const s3 = new AWS.S3();
-const Bucket = process.env.UploadBucket;
-
-async function downloadGame(Key){
-    try{
-        const object = await s3.getObject({Bucket, Key}).promise();
-        return object.Body;
-    }catch(err){
-        console.log("Error downloading demo");
-        throw(err);
-    }
-}
 
 async function queryConnections(roomId){
     try{
@@ -38,25 +25,22 @@ async function queryConnections(roomId){
     }
 }
 
-async function sendGameToOne(connectionId, game){
+async function notifyId(connectionId){
     try{
         const params = {
             ConnectionId: connectionId,
-            Data: Buffer.from(JSON.stringify(game))
+            Data: "Parse Finished"
         };
 
         await apiGateway.postToConnection(params).promise();
     }catch(err){
-        console.log("Error sending game to ${connectionId}");
+        console.log("Error notifying ${connectionId}");
         throw(err);
     }
 }
 
-async function sendGameToAll(connectionIds, game){
-    const promises = connectionIds.map(connectionId => {
-        sendGameToOne(connectionId, game);
-    });
-
+async function notifyAll(connectionIds){
+    const promises = connectionIds.map(connectionId => notifyId(connectionId));
     return Promise.all(promises);
 }
 
@@ -64,22 +48,18 @@ exports.handler = async (event) => {
     const gameKey = event.Records[0].s3.object.key;
     const roomId = gameKey.split('/').pop().slice(0, -5);
 
-    // Get game JSON from s3
-    console.log("Downloading game: ", gameKey);
-    const game = await downloadGame(gameKey);
-
     // Query all connected clients via roomId
     console.log("Querying connections");
     const connectionIds = await queryConnections(roomId);
 
-    // Send game JSON to these clients
+    // Notify these clients
     console.log(`Sending game to ${connectionIds.length} client(s)`);
-    await sendGameToAll(connectionIds, game);
+    await notifyAll(connectionIds);
     
     // Response
     console.log("Complete");
     return {
         statusCode: 200,
-        body: {}
+        body: ""
     };
 };

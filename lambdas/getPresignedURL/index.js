@@ -17,15 +17,21 @@ async function keyExists(Key){
   }
 }
 
-async function getUploadURL(event) {
-  // Generate a key that does not currently exist in S3
+async function generateRandomId(){
   let roomId;
   let Key;
-  
+
   do{
     roomId = randomize("A0", 6);
     Key = `${roomId}.dem`;
   }while(await keyExists(Key));
+
+  return [roomId, Key];
+}
+
+async function getUploadURL() {
+  // Generate a key that does not currently exist in S3
+  const [roomId, Key] = await generateRandomId();
   
   // Get signed URL from S3
   const s3Params = {
@@ -44,7 +50,30 @@ async function getUploadURL(event) {
   });
 }
 
+async function getDownloadURL(Key) {
+  // Get signed URL from S3
+  const s3Params = {
+    Bucket,
+    Key,
+    Expires: URL_EXPIRATION_SECONDS
+  };
+
+  const downloadURL = await s3.getSignedUrlPromise('getObject', s3Params);
+  
+  // Response
+  return JSON.stringify({
+    downloadURL: downloadURL,
+  });
+}
+
 // Main Lambda entry point
 exports.handler = async (event) => {
-  return await getUploadURL(event);
+  const action = event.queryStringParameters.action;
+  const roomId = event.queryStringParameters.roomId;
+  const Key = `games/${roomId}.json`;
+
+  if(action == 'upload')
+    return await getUploadURL();
+  else if(action == 'download' && await keyExists(Key))
+    return await getDownloadURL(Key);
 }
