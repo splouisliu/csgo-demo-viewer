@@ -1,19 +1,18 @@
 import React, {useState, useContext, useEffect} from 'react';
-import { Button, Container, Form, Row, Col} from 'react-bootstrap';
+import { Button, Form, Col} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './CreateRoomPage.css';
 import {useHistory} from 'react-router-dom';
-import axios from "axios";
 import {SocketContext} from "../contexts/SocketProvider";
 import {GameContext} from "../contexts/GameProvider";
 
-const wsURL = "wss://5recwfvlb2.execute-api.us-east-2.amazonaws.com/production";
-const presignedURL = "https://7jo5n6158f.execute-api.us-east-2.amazonaws.com/default/getPresignedURL";
-
 function CreateRoomPage(props){
-    const setJoinCode = useContext(GameContext).setJoinCode;
-    const setGame = useContext(GameContext).setGame;
-    const socket = useContext(SocketContext);
+    const initSocket = useContext(SocketContext).initSocket;
+    const addMessageHandler = useContext(SocketContext).addMessageHandler;
+
+    const uploadDemo = useContext(GameContext).uploadDemo;
+    const downloadGame = useContext(GameContext).downloadGame;
+
     const history = useHistory();
     const [file, setFile] = useState();
     const [fileName, setFileName] = useState("Choose Demo to Upload...");
@@ -21,54 +20,6 @@ function CreateRoomPage(props){
     const [fileStatusName, setFileStatusName] = useState("");
     const [submitBtnStatus, setSubmitBtnStatus] = useState(false);
 
-    async function uploadDemo(){
-        try{
-            // Obtain a presigned URL
-            const res = await axios.get(presignedURL, {
-                params: {
-                    action: 'upload'
-                }
-            });
-
-            // Upload demo to S3
-            await axios.put(res.data.uploadURL, file, {
-                headers: {
-                    'Content-Type': 'application/octet-stream'
-                }
-            });
-
-            return res.data.roomId;
-
-        }catch(err){
-            alert("Unable to upload demo");
-            throw(err);
-        }
-    }
-
-    async function downloadGame(roomId){
-        try{
-            // Obtain a presigned URL
-            const res = await axios.get(presignedURL, {
-                params: {
-                    action: 'download',
-                    roomId: roomId
-                }
-            });
-
-            // Download game JSON from S3
-            const payload = await axios.get(res.data.downloadURL, {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            return payload.data;
-
-        }catch(err){
-            alert("Unable to download game");
-            throw(err);
-        }
-    }
 
     function handleFile(e){
         const file = e.target.files[0];
@@ -106,32 +57,19 @@ function CreateRoomPage(props){
         
         e.preventDefault();
         setSubmitBtnStatus(false);
-
+   
         // Upload demo
-        const roomId = await uploadDemo();
-        setJoinCode(roomId);
+        const roomId = await uploadDemo(file);
 
-        // Make Websocket connection
-        const ws = new WebSocket(wsURL);
+        // Initiate WebSocket connection
+        initSocket(roomId);
 
-        ws.onopen = function(event){
-            ws.send(JSON.stringify({
-                action: "joinRoom",
-                data: {
-                    roomId: roomId
-                }
-            }));
-
-            alert("Connected");
-        }
-
-        ws.onmessage = function(event){
-            const game = downloadGame(roomId);
-            setGame(game);
+        // Download game JSON when backend is done parsing
+        const parseFinishedHandler = async (message) => {
+            await downloadGame(roomId);
             history.push("/watch");
         }
-
-        
+        addMessageHandler("parseFinished", parseFinishedHandler);
     }
 
     return(

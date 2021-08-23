@@ -29,7 +29,9 @@ async function notifyId(connectionId){
     try{
         const params = {
             ConnectionId: connectionId,
-            Data: "Parse Finished"
+            Data: Buffer.from(JSON.stringify({
+                eventName: "parseFinished"
+            }))
         };
 
         await apiGateway.postToConnection(params).promise();

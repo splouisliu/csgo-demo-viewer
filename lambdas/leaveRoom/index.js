@@ -1,7 +1,6 @@
 const AWS = require('aws-sdk');
 
 AWS.config.update({ region: process.env.AWS_REGION });
-const apiGateway = new AWS.ApiGatewayManagementApi({endpoint: process.env.WS_URL});
 const dynamoClient = new AWS.DynamoDB.DocumentClient();
 
 async function deleteConnection(connectionId){

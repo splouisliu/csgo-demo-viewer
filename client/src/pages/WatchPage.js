@@ -31,7 +31,6 @@ function ControlBar (props){
         props.changeRound(i);
     }
 
-
     // Displaying pagination numbers
     for (let number = 1; number <= props.maxRounds; number++) {
         items.push(
@@ -39,7 +38,7 @@ function ControlBar (props){
             {number}
           </Pagination.Item>,
         );
-      }
+    }
 
     return(
         <div>
@@ -52,15 +51,14 @@ function ControlBar (props){
 
 function Game(props){
     const game = useContext(GameContext).game;
-    const socket = useContext(SocketContext);
+    const emitMessage = useContext(SocketContext).emitMessage;
+    const addMessageHandler = useContext(SocketContext).addMessageHandler;
     const [dotPositions, setDotPositions] = useState([]);
     const [playbackState, setPlaybackState] = useState({
         currentRound: 1,
         t: 0,
         paused: true
     });
-
-    //console.log("init");
 
     function updatePlayerDots(round, t){
         if(game.rounds[round] != null){
@@ -73,7 +71,6 @@ function Game(props){
             let players = game.rounds[round].player_positions[t].players;
             let newDotPositions = [];
             
-            console.log(round);
             for(const i in players){
                 if(players[i].position != null){     // checks if player is still alive
                     let xg = players[i].position.x;
@@ -89,7 +86,6 @@ function Game(props){
         }
     }
     
-    
     useInterval(()=>{
         if(!playbackState.paused && game != null && game.rounds[playbackState.currentRound] != null 
             && playbackState.t < game.rounds[playbackState.currentRound].player_positions.length){
@@ -98,16 +94,20 @@ function Game(props){
             setPlaybackState({currentRound: playbackState.currentRound, t: playbackState.t+1, paused: playbackState.paused});
         }
         //console.log("tick");   
-    },7);
+    },1);
      
-
     useEffect(()=>{
-        socket.on("update", state =>{
+        const playbackUpdateHandler = (message) => {
+            const state = message.state;
+
             setPlaybackState(state);
 
             if(game != null)
                 updatePlayerDots(state.currentRound, state.t);
-        });
+        }
+
+        addMessageHandler("playbackUpdate", playbackUpdateHandler);
+
     },[]);
 
     function changeRound(i){
@@ -120,20 +120,23 @@ function Game(props){
         if(game != null)
             updatePlayerDots(i, 0);
     
-        socket.emit("playbackUpdate", newState);
+        //socket.emit("playbackUpdate", newState);
+        emitMessage("playbackUpdate", {state: newState});
     }
 
     function pauseUnpause(){
         let newState = {currentRound: playbackState.currentRound, t:playbackState.t, paused: playbackState.paused ? false: true};
         setPlaybackState(newState);
 
-        socket.emit("playbackUpdate", newState);
+        //socket.emit("playbackUpdate", newState);
+        emitMessage("playbackUpdate", {state: newState});
+
     }
 
     return(
         <Container>
             <Alert key="123" variant="primary">
-                Join Code: {useContext(GameContext).joinCode}
+                Join Code: {useContext(GameContext).roomId}
             </Alert>
             <Jumbotron>
                 <PlaybackArea dotPositions= {dotPositions}/>
@@ -147,7 +150,6 @@ function Game(props){
             </Jumbotron>
         </Container>
     );
-
 }
 
 function WatchPage(){
