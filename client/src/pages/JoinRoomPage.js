@@ -14,6 +14,7 @@ function JoinRoomPage(props){
 
     const history = useHistory();
     const [textValue, setTextValue] = useState("");
+    const [generalStatus, setGeneralStatus] = useState("");
 
     function handleChange(e){
         setTextValue(e.target.value.toUpperCase(), ()=> e.target.setSelectionRange(e.target.start,e.target.end));
@@ -23,6 +24,7 @@ function JoinRoomPage(props){
         e.preventDefault();
         
         // TODO: check for validity of joincode (that joincode game JSON exists on S3)
+        setGeneralStatus('Downloading game, please wait.. (might take up to 30 seconds)')
         
         initSocket(textValue);
         setRoomId(textValue);
@@ -34,11 +36,14 @@ function JoinRoomPage(props){
         <Form className="main-form" onSubmit = {handleSubmit}>
             <Form.Row className="align-items-center">
                 <Col>
-                    <Form.Control type="text" placeholder="Enter Join Code" value = {textValue} onChange = {handleChange}/>
+                    <Form.Control type="text" placeholder="Enter Room Code" value = {textValue} onChange = {handleChange}/>
                 </Col>
                 <Col>
                     <Button variant="join" type = "submit">Join Session</Button>
                 </Col>
+            </Form.Row>
+            <Form.Row className='demo-row'>
+                {generalStatus}
             </Form.Row>
         </Form>
     );

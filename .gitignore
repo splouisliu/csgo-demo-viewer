@@ -2,4 +2,5 @@
 testing/
 node_modules/
 client/src/mygame_new.json
+client/build
 *.zip

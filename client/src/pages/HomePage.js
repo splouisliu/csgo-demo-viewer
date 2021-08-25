@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useState} from 'react';
 import {Container, Row, Col} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './HomePage.css';
@@ -9,20 +9,27 @@ import {GameContext} from "../contexts/GameProvider";
 function HomePage(props){
     const history = useHistory();
     const setRoomId = useContext(GameContext).setRoomId;
-    const downloadGame = useContext(GameContext).downloadGame;
+    const setGame = useContext(GameContext).setGame;
     const initSocket = useContext(SocketContext).initSocket;
+
+    const [generalStatus, setGeneralStatus] = useState("");
 
     const handleCreateRoom = () => history.push("/create");
     const handleJoinRoom = () => history.push("/join");
     const handleTryDemo = async () => {
-        const roomId = "EBMBTX";
+        const roomId = "LGP2J8";
 
-        alert("Downloading game..");
+        setGeneralStatus("Downloading game, please wait.. (might take up to 1 minute)");
 
         initSocket(roomId);
         setRoomId(roomId);
-        await downloadGame(roomId);
-        history.push("/watch");
+
+        fetch(`./demo/${roomId}.json`)
+        .then((r) => r.json())
+        .then((game) => {
+            setGame(game);
+            history.push("/watch");
+        })
     }
 
     return(
@@ -40,6 +47,9 @@ function HomePage(props){
                     <Col id = "demo" onClick = {handleTryDemo}>
                         Try a Demo!
                     </Col>
+                </Row>
+                <Row id = "demo-row">
+                    {generalStatus}
                 </Row>
             </Container>
         </Container>

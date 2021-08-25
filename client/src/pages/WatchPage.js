@@ -212,6 +212,7 @@ function Toolbar(props){
                     </ToggleButton>
                 ))}
             </ToggleButtonGroup>
+            {' '}
             <ButtonGroup>
                 <Button variant="outline-secondary" onClick={props.clearCanvas}>
                     <img src={"/icons/delete.png"}/>
@@ -292,9 +293,14 @@ function Game(props){
             updatePlayerPositions(playbackState.currentRound, playbackState.t);
             setPlaybackState({currentRound: playbackState.currentRound, t: playbackState.t+1, paused: playbackState.paused});
         }
-    },5);
+    }, 12);
      
     useEffect(()=>{
+        // Initial Player positions
+        if(game != null)
+            updatePlayerPositions(playbackState.currentRound, 0);
+
+        // Socket listener
         const playbackUpdateHandler = (message) => {
             const state = message.state;
             setPlaybackState(state);
@@ -302,7 +308,6 @@ function Game(props){
             if(game != null)
                 updatePlayerPositions(state.currentRound, state.t);
         }
-
         addMessageHandler("playbackUpdate", playbackUpdateHandler);
     },[]);
 

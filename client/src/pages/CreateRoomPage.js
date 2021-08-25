@@ -59,7 +59,7 @@ function CreateRoomPage(props){
         e.preventDefault();
         setSubmitBtnStatus(false);
 
-        setGeneralStatus("Processing...");
+        setGeneralStatus("Processing, please wait.. (might take up to 3 minutes)");
    
         // Upload demo
         const roomId = await uploadDemo(file);
