@@ -48,13 +48,13 @@ export function SocketProvider(props){
                 }
             }));
 
-            alert("Connected");
+            console.log(`Connected to room ${roomId}!`);
         }
     
         ws.current.onmessage = function(event){
             const data = JSON.parse(event.data);
 
-            console.log(data.message);
+            console.log("Onmessage: ", data.message);
 
             for(const [name, handler] of Object.entries(messageHandlers.current))
                 if(data.eventName === name)

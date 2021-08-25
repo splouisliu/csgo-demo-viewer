@@ -1,4 +1,4 @@
-import React, {useState, useContext, useEffect} from 'react';
+import React, {useState, useContext} from 'react';
 import { Button, Form, Col} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './CreateRoomPage.css';
@@ -19,6 +19,7 @@ function CreateRoomPage(props){
     const [fileStatus, setFileStatus] = useState(0);
     const [fileStatusName, setFileStatusName] = useState("");
     const [submitBtnStatus, setSubmitBtnStatus] = useState(false);
+    const [generalStatus, setGeneralStatus] = useState("")
 
 
     function handleFile(e){
@@ -52,15 +53,17 @@ function CreateRoomPage(props){
     }
 
     async function handleSubmit(e){
-        if (fileStatus != 1)
+        if (fileStatus !== 1)
             return;
         
         e.preventDefault();
         setSubmitBtnStatus(false);
+
+        setGeneralStatus("Processing...");
    
         // Upload demo
         const roomId = await uploadDemo(file);
-
+        
         // Initiate WebSocket connection
         initSocket(roomId);
 
@@ -73,7 +76,7 @@ function CreateRoomPage(props){
     }
 
     return(
-        <Form className = "main-modal" onSubmit={handleSubmit}>
+        <Form className = "main-form" onSubmit={handleSubmit}>
             <Form.Row>
                 <Col>
                     <Form.File id="formcheck-api-custom" custom> 
@@ -88,6 +91,9 @@ function CreateRoomPage(props){
                 <Col>   
                     <Button variant="create" type = "submit" disabled = {!submitBtnStatus}>Create Session</Button>
                 </Col>
+            </Form.Row>
+            <Form.Row>
+                {generalStatus}
             </Form.Row>
         </Form>
     );

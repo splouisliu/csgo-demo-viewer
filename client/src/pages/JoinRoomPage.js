@@ -1,9 +1,8 @@
-import React, {useState, useContext, useEffect} from 'react';
-import { Button, Jumbotron, Container, Form, Row, Col} from 'react-bootstrap';
+import React, {useState, useContext} from 'react';
+import { Button, Form, Col} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './HomePage.css';
 import {useHistory} from 'react-router-dom';
-import axios from "axios";
 import {SocketContext} from "../contexts/SocketProvider";
 import {GameContext} from "../contexts/GameProvider";
 
@@ -12,8 +11,6 @@ function JoinRoomPage(props){
     const downloadGame = useContext(GameContext).downloadGame;
     
     const initSocket = useContext(SocketContext).initSocket;
-    const addMessageHandler = useContext(SocketContext).addMessageHandler;
-    const emitMessage = useContext(SocketContext).emitMessage;
 
     const history = useHistory();
     const [textValue, setTextValue] = useState("");
@@ -34,7 +31,7 @@ function JoinRoomPage(props){
     }
 
     return(
-        <Form onSubmit = {handleSubmit}>
+        <Form className="main-form" onSubmit = {handleSubmit}>
             <Form.Row className="align-items-center">
                 <Col>
                     <Form.Control type="text" placeholder="Enter Join Code" value = {textValue} onChange = {handleChange}/>

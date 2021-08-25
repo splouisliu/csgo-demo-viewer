@@ -18,7 +18,7 @@
 
 .main-modal .left, .right{
     text-align: center;
-    margin-top: 180px;
+    margin-top: 140px;
     height: 560px;
     padding-top: 240px;
     font-size: 40px;
@@ -42,6 +42,28 @@
 
 .right:hover{
     background-color:  #cddef3;
+}
+
+#demo-row{
+    width: 1000px;
+    margin: auto;
+    text-align: center;
+}
+
+#demo{
+    text-align: center;
+    margin-top: 460px;
+    height: 60px;
+    padding-top: 10px;
+    font-size: 26px;
+    font-family: Calibri;
+    background-color: #ADE0E2;
+    color: #303e4d;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+#demo:hover{
+    background-color: #C5F2F4;
 }
 
 

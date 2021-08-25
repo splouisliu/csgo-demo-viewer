@@ -31,7 +31,10 @@ function parseDemo(demo){
         // Run demo parsing
         const demoFile = new demofile.DemoFile();
         demoFile.parse(demo);
+
+        game.map = demoFile.header.mapName;
         
+        // Event listeners
         demoFile.gameEvents.on("round_freeze_end", e=>{
             let playersT = demoFile.teams[T].members;
             let playersCT = demoFile.teams[CT].members;
@@ -130,7 +133,7 @@ function parseDemo(demo){
             if(Object.keys(game.rounds).length < 1)
                 reject("Error parsing demo");
             else
-                resolve(game)
+                resolve(game);
         });
     });
 }

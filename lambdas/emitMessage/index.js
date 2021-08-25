@@ -55,7 +55,7 @@ async function queryConnections(roomId, connectionIdToRemove){
 
 async function sendMessage(connectionIds, eventName, message){
     try{
-        connectionIds.forEach(async connectionId => {
+        await Promise.all(connectionIds.map(async (connectionId) => {
             const params = {
                 ConnectionId: connectionId,
                 Data: Buffer.from(JSON.stringify({
@@ -65,7 +65,7 @@ async function sendMessage(connectionIds, eventName, message){
             };
 
             await apiGateway.postToConnection(params).promise();
-        });
+        }));
     }catch(err){
         console.log("Error sending message");
         throw(err);

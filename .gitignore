@@ -1,4 +1,5 @@
 .vscode/
 testing/
 node_modules/
+client/src/mygame_new.json
 *.zip

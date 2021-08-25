@@ -1,4 +1,4 @@
-import React, {useState, useRef} from 'react';
+import React, {useState} from 'react';
 import axios from "axios";
 
 const PRESIGNED_URL = "https://7jo5n6158f.execute-api.us-east-2.amazonaws.com/default/getPresignedURL";
@@ -30,7 +30,6 @@ export function GameProvider(props){
 
         }catch(err){
             alert("Unable to upload demo");
-            throw(err);
         }
     }
 
@@ -56,12 +55,11 @@ export function GameProvider(props){
 
         }catch(err){
             alert("Unable to download game");
-            throw(err);
         }
     }
 
     return(
-        <GameContext.Provider value={{game, roomId, setRoomId, uploadDemo, downloadGame}}>
+        <GameContext.Provider value={{game, setGame, roomId, setRoomId, uploadDemo, downloadGame}}>
             {props.children}
         </GameContext.Provider>
     );
