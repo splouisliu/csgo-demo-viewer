@@ -107,7 +107,7 @@ function CanvasLayer(props){
     }, []);
 
     return(
-        <Layer listening={props.currentTool!='mouse'}>
+        <Layer listening={props.currentTool !== 'mouse'}>
             {props.lines.map((line, i) => (
                 <Line
                     key={i}
@@ -199,7 +199,7 @@ function Toolbar(props){
     
     return (
         <ButtonToolbar id="toolbar">
-            <ToggleButtonGroup type="radio" name="radio">
+            <ToggleButtonGroup type="radio" name="radio" defaultValue={props.currentTool}>
                 {tools.map((toolName) => (
                     <ToggleButton 
                         variant="outline-secondary" 
@@ -208,14 +208,14 @@ function Toolbar(props){
                         checked={toolName === props.currentTool}
                         onChange={(e) => props.setCurrentTool(e.currentTarget.value)}
                     >
-                        {<img src={`/icons/${toolName}.png`}/>}
+                        {<img src={`/icons/${toolName}.png`} alt={toolName}/>}
                     </ToggleButton>
                 ))}
             </ToggleButtonGroup>
-            {' '}
+            &nbsp;&nbsp;
             <ButtonGroup>
                 <Button variant="outline-secondary" onClick={props.clearCanvas}>
-                    <img src={"/icons/delete.png"}/>
+                    <img src={"/icons/delete.png"} alt="delete"/>
                 </Button>
             </ButtonGroup>
         </ButtonToolbar>
@@ -318,7 +318,7 @@ function Game(props){
     }
     return(
         <Container>
-            <Alert key="123" variant="primary">
+            <Alert id="alert" variant="primary">
                 Room Code: {roomId}
             </Alert>
             <MainStage

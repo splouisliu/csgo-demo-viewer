@@ -1,3 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Urbanist&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu&display=swap');
+
+.noselect {
+    -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Safari */
+       -khtml-user-select: none; /* Konqueror HTML */
+         -moz-user-select: none; /* Old versions of Firefox */
+          -ms-user-select: none; /* Internet Explorer/Edge */
+              user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome, Edge, Opera and Firefox */
+  }
+
 .btn-join {
     background-color: purple;
     color: white;
@@ -8,7 +21,6 @@
     color: white;
 }
 
-
 .main-modal{
     height: 300px;
     width: 900px;
@@ -18,11 +30,11 @@
 
 .main-modal .left, .right{
     text-align: center;
-    margin-top: 140px;
+    margin-top: 160px;
     height: 560px;
-    padding-top: 240px;
-    font-size: 40px;
-    font-family: Calibri;
+    padding-top: 250px;
+    font-size: 36px;
+    font-family: 'Ubuntu', sans-serif;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
@@ -37,7 +49,7 @@
 
 .right{
     background-color: #B0C4DE;
-    
+    color: #354455;
 }
 
 .right:hover{
@@ -52,18 +64,18 @@
 
 #demo{
     text-align: center;
-    margin-top: 460px;
+    margin-top: 480px;
     height: 60px;
-    padding-top: 10px;
-    font-size: 26px;
-    font-family: Calibri;
-    background-color: #ADE0E2;
-    color: #303e4d;
+    padding-top: 12px;
+    font-size: 22px;
+    font-family: 'Ubuntu', sans-serif;
+    background-color: #C4E9F4;
+    color: #354455;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 #demo:hover{
-    background-color: #C5F2F4;
+    background-color: #D6EDF5;
 }
 
 html, body, #root, .App {

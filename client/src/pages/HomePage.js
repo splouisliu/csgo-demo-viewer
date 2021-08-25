@@ -13,14 +13,19 @@ function HomePage(props){
     const initSocket = useContext(SocketContext).initSocket;
 
     const [generalStatus, setGeneralStatus] = useState("");
+    const [demoConnecting, setDemoConnecting] = useState(false);
 
     const handleCreateRoom = () => history.push("/create");
     const handleJoinRoom = () => history.push("/join");
     const handleTryDemo = async () => {
+        if(demoConnecting)
+            return;
+
         const roomId = "LGP2J8";
 
         setGeneralStatus("Downloading game, please wait.. (might take up to 1 minute)");
-
+        setDemoConnecting(true);
+        
         initSocket(roomId);
         setRoomId(roomId);
 
@@ -35,7 +40,7 @@ function HomePage(props){
     return(
         <Container fluid className = "page">
             <Container>
-                <Row className = "main-modal">
+                <Row className = "main-modal noselect">
                     <Col className = "left" onClick = {handleCreateRoom}>
                         Create Session
                     </Col>
@@ -43,9 +48,9 @@ function HomePage(props){
                         Join Session
                     </Col>
                 </Row>
-                <Row id = "demo-row">
+                <Row id = "demo-row" className = "noselect">
                     <Col id = "demo" onClick = {handleTryDemo}>
-                        Try a Demo!
+                        Try a sample demo!
                     </Col>
                 </Row>
                 <Row id = "demo-row">
