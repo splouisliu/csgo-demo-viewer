@@ -1,5 +1,5 @@
 import React, {useState, useContext} from 'react';
-import { Button, Form, Col} from 'react-bootstrap';
+import { Button, Form, Row, Col, Spinner} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './CreateRoomPage.css';
 import {useHistory} from 'react-router-dom';
@@ -13,58 +13,64 @@ function CreateRoomPage(props){
     const uploadDemo = useContext(GameContext).uploadDemo;
     const downloadGame = useContext(GameContext).downloadGame;
 
+    const MAX_DEMO_SIZE = 400;  // in MB
+
+    const statuses = {
+        nofile: 1,
+        invalidFormat: 2,
+        sizeTooBig: 3,
+        staged: 4,
+        processing: 5
+    };
+
+    const statusMsgs = {
+        1: "No file selected",
+        2: "Invalid file format",
+        3: `File size exceeds max limit of ${MAX_DEMO_SIZE} MB`,
+        4: "Ready to go!",
+        5: "Processing demo.. (expect 2-4 minutes)"
+    }
+
     const history = useHistory();
     const [file, setFile] = useState();
     const [fileName, setFileName] = useState("Choose Demo to Upload...");
-    const [fileStatus, setFileStatus] = useState(0);
-    const [fileStatusName, setFileStatusName] = useState("");
-    const [submitBtnStatus, setSubmitBtnStatus] = useState(false);
-    const [generalStatus, setGeneralStatus] = useState("")
+    const [status, setStatus] = useState(statuses.noFile);
 
-
+    // File verification
     function handleFile(e){
         const file = e.target.files[0];
 
         if(!file){
-            setFileStatusName("No file selected");
-            setFileStatus(-1);
-            return;
-        }
-
-        else if(!file.name.match(/\.(dem)$/)){
-            setFileStatusName("Invalid file format");
-            setFileStatus(-1);
+            setStatus(statuses.noFile);
+        }else if(!file.name.match(/\.(dem)$/)){
+            setStatus(statuses.invalidFormat);
             setFileName(file.name);
-            return;
-        }
-
-        else if(file.size > 419430400){
-            setFileStatusName("File size too big");
-            setFileStatus(-1);
+        }else if(file.size > MAX_DEMO_SIZE *(1024**2)){
+            setStatus(statuses.sizeTooBig);
             setFileName(file.name);
-            return;
-        }
-        else{
-            setFileStatus(1);
+        }else{
+            setStatus(statuses.staged);
             setFileName(file.name);
             setFile(file);
-            setSubmitBtnStatus(true);
         }
     }
 
     async function handleSubmit(e){
-        if (fileStatus !== 1)
+        if (status !== statuses.staged)
             return;
-        
         e.preventDefault();
-        setSubmitBtnStatus(false);
 
-        setGeneralStatus("Processing, please wait.. (might take up to 3 minutes)");
-   
+        setStatus(statuses.processing);
+
         // Upload demo
-        const roomId = await uploadDemo(file);
-        
-        // Initiate WebSocket connection
+        let roomId;
+        try{
+            roomId = await uploadDemo(file);
+        }catch(err){
+            setStatus(statuses.noFile);
+            return;
+        }
+
         initSocket(roomId);
 
         // Download game JSON when backend is done parsing
@@ -77,24 +83,31 @@ function CreateRoomPage(props){
 
     return(
         <Form className = "main-form" onSubmit={handleSubmit}>
-            <Form.Row>
+            <Row>
                 <Col>
-                    <Form.File id="formcheck-api-custom" custom> 
-                        <Form.File.Input isValid = {fileStatus > 0} isInvalid = {fileStatus < 0} onChange ={handleFile}/>
+                    <Form.File custom> 
+                        <Form.File.Input 
+                            isValid = {status >= statuses.staged} 
+                            isInvalid = {status < statuses.staged}
+                            disabled={status === statuses.processing} 
+                            onChange ={handleFile} 
+                        />
                         <Form.File.Label data-browse="Browse">
                             {fileName}
                         </Form.File.Label>
-                        <Form.Control.Feedback type="invalid">{fileStatusName}</Form.Control.Feedback>
+                        <Form.Control.Feedback type="invalid">{statusMsgs[status]}</Form.Control.Feedback>
+                        <Form.Control.Feedback type="valid">{statusMsgs[status]}</Form.Control.Feedback>
                     </Form.File>
-                    
                 </Col>
                 <Col>   
-                    <Button variant="create" type = "submit" disabled = {!submitBtnStatus}>Create Session</Button>
+                    <Button type = "submit" disabled = {status !== statuses.staged}>
+                        {status === statuses.processing
+                            ? <Spinner as="span" animation="border" role="status" size="sm"/>
+                            : "Create Session"
+                        }
+                    </Button>
                 </Col>
-            </Form.Row>
-            <Form.Row>
-                {generalStatus}
-            </Form.Row>
+            </Row>
         </Form>
     );
 }

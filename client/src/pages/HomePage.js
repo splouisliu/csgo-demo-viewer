@@ -1,5 +1,5 @@
 import React, {useContext, useState} from 'react';
-import {Container, Row, Col} from 'react-bootstrap';
+import {Container, Row, Spinner, Button, ButtonGroup} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './HomePage.css';
 import {useHistory} from 'react-router-dom';
@@ -12,22 +12,16 @@ function HomePage(props){
     const setGame = useContext(GameContext).setGame;
     const initSocket = useContext(SocketContext).initSocket;
 
-    const [generalStatus, setGeneralStatus] = useState("");
-    const [demoConnecting, setDemoConnecting] = useState(false);
+    const [processing, setProcessing] = useState(false);
 
     const handleCreateRoom = () => history.push("/create");
     const handleJoinRoom = () => history.push("/join");
     const handleTryDemo = async () => {
-        if(demoConnecting)
-            return;
-
         const roomId = "LGP2J8";
 
-        setGeneralStatus("Downloading game, please wait.. (might take up to 1 minute)");
-        setDemoConnecting(true);
-        
         initSocket(roomId);
         setRoomId(roomId);
+        setProcessing(true);
 
         fetch(`./demo/${roomId}.json`)
         .then((r) => r.json())
@@ -40,21 +34,23 @@ function HomePage(props){
     return(
         <Container fluid className = "page">
             <Container>
-                <Row className = "main-modal noselect">
-                    <Col className = "left" onClick = {handleCreateRoom}>
-                        Create Session
-                    </Col>
-                    <Col className = "right" onClick = {handleJoinRoom}>
-                        Join Session
-                    </Col>
+                <Row className = "main-modal">
+                    <ButtonGroup>
+                        <Button id = "btn-create" variant = "custom" onClick = {handleCreateRoom}>
+                            Create Session
+                        </Button>
+                        <Button id = "btn-join" variant = "custom" onClick = {handleJoinRoom}>
+                            Join Session
+                        </Button>
+                    </ButtonGroup>
                 </Row>
-                <Row id = "demo-row" className = "noselect">
-                    <Col id = "demo" onClick = {handleTryDemo}>
-                        Try a sample demo!
-                    </Col>
-                </Row>
-                <Row id = "demo-row">
-                    {generalStatus}
+                <Row className>
+                    <Button id = "btn-demo" variant = "custom" onClick = {handleTryDemo} disabled = {processing}>
+                        {processing
+                            ? <Spinner as="span" animation="border" role="status"/>
+                            : "Try a sample demo!"
+                        }
+                    </Button>
                 </Row>
             </Container>
         </Container>

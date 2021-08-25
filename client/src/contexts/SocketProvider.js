@@ -62,8 +62,12 @@ export function SocketProvider(props){
         }
     }
 
+    function closeSocket(){
+        ws.current.close();
+    }
+
     return(
-        <SocketContext.Provider value={{initSocket, addMessageHandler, emitMessage}}>
+        <SocketContext.Provider value={{initSocket, closeSocket, addMessageHandler, emitMessage}}>
             {props.children}
         </SocketContext.Provider>
     );

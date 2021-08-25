@@ -1,7 +1,7 @@
 import React, {useState, useContext} from 'react';
-import { Button, Form, Col} from 'react-bootstrap';
+import { Button, Form, Col, Spinner} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './HomePage.css';
+import './JoinRoomPage.css';
 import {useHistory} from 'react-router-dom';
 import {SocketContext} from "../contexts/SocketProvider";
 import {GameContext} from "../contexts/GameProvider";
@@ -11,25 +11,30 @@ function JoinRoomPage(props){
     const downloadGame = useContext(GameContext).downloadGame;
     
     const initSocket = useContext(SocketContext).initSocket;
+    const closeSocket = useContext(SocketContext).closeSocket;
 
     const history = useHistory();
     const [textValue, setTextValue] = useState("");
-    const [generalStatus, setGeneralStatus] = useState("");
+    const [processing, setProcessing] = useState(false);
 
     function handleChange(e){
         setTextValue(e.target.value.toUpperCase(), ()=> e.target.setSelectionRange(e.target.start,e.target.end));
     }
 
-    async function handleSubmit(e){
+    function handleSubmit(e){
         e.preventDefault();
         
         // TODO: check for validity of joincode (that joincode game JSON exists on S3)
-        setGeneralStatus('Downloading game, please wait.. (might take up to 30 seconds)')
-        
         initSocket(textValue);
         setRoomId(textValue);
-        await downloadGame(textValue);
-        history.push("/watch");
+        setProcessing(true);
+
+        downloadGame(textValue).then(data=>{
+            history.push("/watch");
+        }).catch(err => {
+            closeSocket();
+            setProcessing(false);
+        });
     }
 
     return(
@@ -39,11 +44,18 @@ function JoinRoomPage(props){
                     <Form.Control type="text" placeholder="Enter Room Code" value = {textValue} onChange = {handleChange}/>
                 </Col>
                 <Col>
-                    <Button variant="join" type = "submit">Join Session</Button>
+                    <Button type = "submit">
+                        {processing
+                            ? <Spinner as="span" animation="border" role="status" size="sm"/>
+                            : "Join Session"
+                        }
+                    </Button>
                 </Col>
             </Form.Row>
             <Form.Row className='demo-row'>
-                {generalStatus}
+                {processing && 
+                    <p>Downloading game.. (expect 1 minute)</p>
+                }
             </Form.Row>
         </Form>
     );

@@ -30,6 +30,7 @@ export function GameProvider(props){
 
         }catch(err){
             alert("Unable to upload demo");
+            return Promise.reject(err);
         }
     }
 
@@ -55,6 +56,7 @@ export function GameProvider(props){
 
         }catch(err){
             alert("Unable to download game");
+            return Promise.reject(err);
         }
     }
 
