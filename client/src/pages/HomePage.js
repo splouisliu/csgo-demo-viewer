@@ -47,8 +47,8 @@ function HomePage(props){
                 <Row className>
                     <Button id = "btn-demo" variant = "custom" onClick = {handleTryDemo} disabled = {processing}>
                         {processing
-                            ? <Spinner as="span" animation="border" role="status"/>
-                            : "Try a sample demo!"
+                            ? <><Spinner as="span" animation="border" role="status"/> &nbsp;&nbsp;Downloading game (~1 minute)</>
+                            : <>Try a sample demo!</>
                         }
                     </Button>
                 </Row>
